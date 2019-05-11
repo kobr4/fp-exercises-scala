@@ -100,4 +100,32 @@ object Stream {
 
 object Exercise5 {
 
+  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+
+  def from(n: Int): Stream[Int] = Stream.cons(n, from(n + 1))
+
+  def fibs: Stream[Int] = {
+    def innerFibs(a: Int, b: Int): Stream[Int] = {
+      Stream.cons(a, innerFibs(b, a + b))
+    }
+    innerFibs(0, 1)
+  }
+
+  def unfold[S, A](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+    f(z) match {
+      case None => Stream.empty
+      case Some(s) => Stream.cons(s._1, unfold(s._2)(f))
+    }
+  }
+
+  def fibsUnfold: Stream[Int] =
+    Stream.cons(0,
+      Stream.cons(1, unfold( (0, 1) )(s => Some((s._2 + s._1, (s._2, s._2 + s._1)))))
+    )
+
+  def constantUnfold[A](a: A): Stream[A] = unfold(Unit)(_ => Some((a, Unit) ))
+
+  def fromUnfold(n: Int): Stream[Int] = unfold(n)(s => Some(s, s+1))
+
+
 }

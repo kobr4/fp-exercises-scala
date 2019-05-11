@@ -73,4 +73,20 @@ class Exercise5Spec extends FlatSpec with Matchers {
 
     streamOfInt.filter(_ != 2).toList shouldBe List(1, 3, 4, 5)
   }
+
+  "Exercise5" should "generate infinite list of elements" in {
+
+    Exercise5.constant(1).take(5).toList shouldBe List(1, 1, 1, 1, 1)
+
+    Exercise5.from(1).take(5).toList shouldBe List(1, 2, 3, 4, 5)
+
+    Exercise5.fibs.take(5).toList shouldBe List(0, 1, 1, 2, 3)
+
+    Exercise5.fibsUnfold.take(5).toList shouldBe List(0, 1, 1, 2, 3)
+
+    Exercise5.constantUnfold(1).take(5).toList shouldBe List(1, 1, 1, 1, 1)
+
+    Exercise5.fromUnfold(1).take(5).toList shouldBe List(1, 2, 3, 4, 5)
+
+  }
 }
