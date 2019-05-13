@@ -84,9 +84,40 @@ class Exercise5Spec extends FlatSpec with Matchers {
 
     Exercise5.fibsUnfold.take(5).toList shouldBe List(0, 1, 1, 2, 3)
 
+    Exercise5.onesUnfold.take(5).toList shouldBe List(1, 1, 1, 1, 1)
+
     Exercise5.constantUnfold(1).take(5).toList shouldBe List(1, 1, 1, 1, 1)
 
     Exercise5.fromUnfold(1).take(5).toList shouldBe List(1, 2, 3, 4, 5)
 
+  }
+
+  "Exercise5" should "perform operation with unfold" in {
+
+    val streamOfInt: Stream[Int] = Stream(1, 2, 3, 4, 5)
+
+    val streamOfInt2: Stream[Int] = Stream(1, 2, 3)
+
+    streamOfInt.takeUnfold(3).toList shouldBe List(1, 2, 3)
+
+    streamOfInt.takeWhileUnfold(_ < 3).toList shouldBe List(1, 2)
+
+    streamOfInt.mapUnfold(_.toString).toList shouldBe List("1", "2", "3", "4", "5")
+
+    streamOfInt.zipWith(streamOfInt)((a, b) => a + b).toList shouldBe List(2, 4, 6, 8, 10)
+
+    streamOfInt.zipWith(streamOfInt2)((a, b) => a + b).toList shouldBe List(2, 4, 6)
+
+    streamOfInt.zipAll(streamOfInt2).toList shouldBe List((Some(1), Some(1)), (Some(2), Some(2)), (Some(3), Some(3)),
+      (Some(4), None), (Some(5), None))
+
+    streamOfInt.startWith(streamOfInt2) shouldBe true
+  }
+
+  "Exercise5" should "tail stream" in {
+
+    val streamOfInt: Stream[Int] = Stream(1, 2, 3)
+
+    streamOfInt.tails.map(_.toList).toList shouldBe List(List(1, 2, 3), List(2, 3), List(3), List())
   }
 }
