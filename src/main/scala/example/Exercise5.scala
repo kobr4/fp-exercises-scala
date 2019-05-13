@@ -134,7 +134,12 @@ sealed trait Stream[+A] {
         case Cons(h, t) => Stream.cons[Stream[A]](t(), tails(t()))
       }
     }
-    Stream.cons(this,tails(this))
+
+    Stream.cons(this, tails(this))
+  }
+
+  def scanRight[B >: A](z: B)(f: (B, B) => B): Stream[B] = {
+    tails.map(_.foldRight(z)(f(_, _)))
   }
 }
 

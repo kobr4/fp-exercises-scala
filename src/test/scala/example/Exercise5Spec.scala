@@ -119,5 +119,7 @@ class Exercise5Spec extends FlatSpec with Matchers {
     val streamOfInt: Stream[Int] = Stream(1, 2, 3)
 
     streamOfInt.tails.map(_.toList).toList shouldBe List(List(1, 2, 3), List(2, 3), List(3), List())
+
+    streamOfInt.scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
   }
 }
