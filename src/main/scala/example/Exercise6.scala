@@ -36,6 +36,7 @@ case class State[S, +A](run: S => (A, S)) {
       a.run(s2)
     })
   }
+
 }
 
 object State {
@@ -59,6 +60,48 @@ object State {
   }
 
 }
+
+sealed trait Input
+
+case object Coin extends Input
+
+case object Turn extends Input
+
+case class Machine(locked: Boolean, candies: Int, coins: Int) {
+
+  def lock: Machine = Machine(locked = true, candies, coins)
+
+  def unlock: Machine = Machine(locked = false, candies, coins)
+
+  def decCandies: Machine = Machine(locked, candies - 1, coins)
+
+  def getValues: ((Int, Int), Machine) = ((coins, candies), this)
+}
+
+object Machine {
+
+
+  def insertCoin: State[Machine, (Int, Int)] =
+    State(m => ((m.coins + 1, m.candies), Machine(locked = false, m.candies, m.coins + 1)))
+
+  def turn: State[Machine, (Int, Int)] =
+    State(m => if (!m.locked) {
+      m.lock.decCandies.getValues
+    } else m.getValues)
+
+
+  def checkCandies(in: State[Machine, (Int, Int)]): State[Machine, (Int, Int)] = {
+    State(m => if (m.candies > 0) in.run(m) else m.getValues)
+  }
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
+    State.sequence(inputs.map({
+      case Coin => checkCandies(insertCoin)
+      case Turn => checkCandies(turn)
+    }))
+  }.map(_.head)
+}
+
 
 object Exercise6 {
 

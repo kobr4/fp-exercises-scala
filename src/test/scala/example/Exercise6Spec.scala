@@ -30,5 +30,10 @@ class Exercise6Spec extends FlatSpec with Matchers {
     State.intsSeq(20).run(SimpleRNG(1000L))._1 shouldBe Exercise6.intsSeq(20)(SimpleRNG(1000L))._1
   }
 
+  "Exercise6" should "run state machine" in {
+
+    Machine.simulateMachine(List(Coin, Turn, Turn, Coin, Turn, Coin, Turn, Coin, Turn)).run(Machine(locked = false, 5, 10))._1 shouldBe (14, 1)
+  }
+
 }
 
