@@ -8,6 +8,7 @@ ThisBuild / organizationName := "example"
 lazy val root = (project in file("."))
   .settings(
     name := "fp-exercises",
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.6.0-M7",
     libraryDependencies += scalaTest % Test
   )
 
