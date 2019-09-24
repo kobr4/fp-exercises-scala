@@ -106,9 +106,44 @@ object Par {
     map(sequence(b))(_.flatten)
   }
 
+  def run[A](es: ExecutorService)(p: Par[A]): A = {
+    p(es).get
+  }
 
+  def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] = {
+    es =>
+      if (run(es)(cond)) t(es)
+      else f(es)
+  }
 
+  def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] = {
+      es => choices(run(es)(n))(es)
+  }
 
+  def choiceWithN[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    choiceN(map(cond)(s => if (s) 1 else 0))(List(f, t))
+
+  def chooser[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] = {
+    es => choices(run(es)(pa))(es)
+  }
+
+  def choiceWithChooser[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    chooser(cond)(b => if (b) t else f)
+
+  def choiceNWithChooser[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+    chooser(n)(n => choices(n))
+
+  def join[A](a: Par[Par[A]]): Par[A] = {
+    es => a(es).get(es)
+  }
+
+  def flatMap[A, B](a: Par[A])(f: A => Par[B]): Par[B] = {
+    join(map(a)(f))
+  }
+
+  def joinWithFm[A](a: Par[Par[A]]): Par[A] = {
+    flatMap(a)(b => b)
+  }
 }
 
 
