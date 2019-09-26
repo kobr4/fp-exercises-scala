@@ -40,7 +40,7 @@ class Exercise8Spec extends FlatSpec with Matchers {
 
   }
 
-  "Exercise8_8" should "generate an array of boolean of arbitrary length" in {
+  "Exercise8_6" should "generate an array of boolean of arbitrary length" in {
 
     val gen = Exercise8.Exercise8_4.boolean
 
@@ -48,6 +48,28 @@ class Exercise8Spec extends FlatSpec with Matchers {
 
     value.length should be >= 10
     value.length should be < 20
+  }
+
+  "Exercise8_7" should "generate from either first or secong generate" in {
+
+    val gen1 = Exercise8.Exercise8_4.choose(1, 3)
+    val gen2 = Exercise8.Exercise8_4.choose(7, 9)
+
+    val value = Exercise8.Exercise8_4.union(gen1, gen2).listOfN(Exercise8.Exercise8_4.unit(10)).sample.run(SimpleRNG(1L))._1
+
+    all(value) should ( (be >= 1 and be < 3) or (be >= 7 and be < 9) )
+  }
+
+  "Exercise8_8" should "generate from either first or secong generator with weight" in {
+
+    val gen1 = Exercise8.Exercise8_4.choose(1, 3)
+    val gen2 = Exercise8.Exercise8_4.choose(7, 9)
+
+    val value = Exercise8.Exercise8_4.weighted( (gen1, 0.2) , (gen2, 0.4) )
+      .listOfN(Exercise8.Exercise8_4.unit(10)).sample.run(SimpleRNG(2L))._1
+
+    all(value) should ( (be >= 1 and be < 3) or (be >= 7 and be < 9) )
+
   }
 
 }

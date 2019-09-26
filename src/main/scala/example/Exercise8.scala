@@ -1,5 +1,7 @@
 package example
 
+import example.Exercise8.Exercise8_9.Prop.{FailedCase, SuccessCount}
+
 
 object Exercise8 {
 
@@ -60,6 +62,67 @@ object Exercise8 {
 
       Gen(State({ rng => (listOfNested(n, g, rng, List()), rng) }))
     }
+
+    def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] = {
+      Gen(State({ rng: RNG => rng.nextInt }).flatMap(i => if (i % 2 == 0) g1.sample else g2.sample))
+    }
+
+    def weighted[A](g1: (Gen[A], Double), g2: (Gen[A], Double)): Gen[A] = {
+      Gen(State({ rng: RNG => Exercise6.double(rng) })
+        .flatMap(d => if (d * (g1._2 + g2._2) < g1._2) g1._1.sample else g2._1.sample))
+    }
+
+  }
+
+  object Exercise8_9 {
+
+    type TestCases = Int
+
+
+    object Prop {
+      type FailedCase = String
+      type SuccessCount = Int
+    }
+
+    sealed trait Result {
+
+      def isFalsified: Boolean
+    }
+
+    case object Passed extends Result {
+
+      def isFalsified = false
+    }
+
+    case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
+
+      def isFalsified = true
+    }
+
+    case class Prop(run: (TestCases, RNG) => Result) {
+
+      def &&(p: Prop): Prop = {
+        val p0 = this
+        Prop((cases, rng) => {
+          (p0.run(cases, rng), p.run(cases, rng)) match {
+            case res@(Falsified(f, s), _) => res._1
+            case res@(_, Falsified(f, s)) => res._2
+            case _ => Passed
+          }
+        })
+      }
+
+      def ||(p: Prop): Prop = {
+        val p0 = this
+        Prop((cases, rng) =>
+          (p0.run(cases, rng), p.run(cases, rng)) match {
+            case res@(Falsified(f, s), Falsified(f2, s2)) => res._1
+            case _ => Passed
+          }
+        )
+      }
+    }
+
   }
 
 }
