@@ -1,5 +1,7 @@
 package example
 
+import example.Exercise8.Exercise8_9.Falsified
+import example.Exercise8.{Exercise8_10, Exercise8_13}
 import org.scalatest.{FlatSpec, Matchers}
 
 class Exercise8Spec extends FlatSpec with Matchers {
@@ -60,7 +62,7 @@ class Exercise8Spec extends FlatSpec with Matchers {
     all(value) should ( (be >= 1 and be < 3) or (be >= 7 and be < 9) )
   }
 
-  "Exercise8_8" should "generate from either first or secong generator with weight" in {
+  "Exercise8_8" should "generate from either first or second generator with weight" in {
 
     val gen1 = Exercise8.Exercise8_4.choose(1, 3)
     val gen2 = Exercise8.Exercise8_4.choose(7, 9)
@@ -69,6 +71,19 @@ class Exercise8Spec extends FlatSpec with Matchers {
       .listOfN(Exercise8.Exercise8_4.unit(10)).sample.run(SimpleRNG(2L))._1
 
     all(value) should ( (be >= 1 and be < 3) or (be >= 7 and be < 9) )
+
+  }
+
+  "Exercise8_14" should "verify sorted list" in {
+
+    val genOfInt = Exercise8_10.listOf1(Exercise8.Exercise8_4.choose(0, 50))
+
+    val prop = Exercise8_13.forAll(genOfInt)(list => list.sorted.foldRight( (true, list.max) )((a, b) => (b._1 && a <= b._2, a))._1)
+
+    val test = prop.run(10, 10, SimpleRNG(1L))
+
+    test.isFalsified shouldBe false
+
 
   }
 
